@@ -1,0 +1,52 @@
+# Composer dependencies
+/vendor/
+composer.lock
+
+# PHPUnit
+/coverage/
+phpunit.xml
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Moodle-specific
+/moodledata/
+config.php
+
+# Environment files
+.env
+.env.local
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+Thumbs.db
+
+# Build files
+/build/
+/dist/
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
+
+# Node modules (if using npm for frontend tools)
+node_modules/
+
+# API keys and secrets (NEVER commit these)
+secrets.php
+api_keys.php
+
+# Test output
+/test-results/
+/.phpunit.result.cache
