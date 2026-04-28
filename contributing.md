@@ -215,6 +215,5 @@ For maintainers only:
 
 - **Technical questions:** [GitHub Discussions](https://github.com/seanrugg/assignment_lid/discussions)
 - **Feature proposals:** [GitHub Issues](https://github.com/seanrugg/assignment_lid/issues)
-- **Email:** [sean@learning-intelligence.dev](mailto:sean@learning-intelligence.dev)
 
 Thank you for contributing to Assignment LID! 🎉
