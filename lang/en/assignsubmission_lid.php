@@ -52,6 +52,12 @@ $string['costper1moutputtokens_help'] = 'Pricing for output tokens. Default is $
 $string['costper1mthoughttokens'] = 'Cost per 1M Thought Tokens (USD)';
 $string['costper1mthoughttokens_help'] = 'Pricing for thinking tokens. Default is $0.30 for Gemini 2.5 Flash.';
 
+// UI Settings.
+$string['uisettings'] = 'User Interface Settings';
+$string['uisettings_desc'] = 'Configure the appearance and style of LID dashboards and components.';
+$string['futuristicui'] = 'Enable Futuristic UI Mode';
+$string['futuristicui_help'] = 'Enable enhanced visual effects including gradients, animations, and glass-morphism effects. This gives LID a modern, data-visualization aesthetic while still respecting your theme colors. Disable for a more conservative, traditional look that purely inherits from your theme.';
+
 // Assignment settings.
 $string['enabled'] = 'Enable LID Analysis';
 $string['enabled_help'] = 'Enable Learning Intelligence Dashboard analysis for this assignment.';
