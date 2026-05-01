@@ -18,6 +18,9 @@
     @template assignsubmission_lid/no_analysis
 
     Template for displaying when no analysis exists.
+    
+    THEME COMPATIBILITY:
+    Uses Bootstrap alert component for consistent styling across all themes.
 
     Context variables required for this template:
     * submissionid - The submission ID
@@ -25,8 +28,8 @@
 }}
 
 <div class="assignsubmission_lid_no_analysis">
-    <div class="alert alert-info">
-        <p>{{#str}}noanalysis, assignsubmission_lid{{/str}}</p>
+    <div class="alert alert-info" role="alert">
+        <p class="mb-2">{{#str}}noanalysis, assignsubmission_lid{{/str}}</p>
         {{#cananalyze}}
         <button type="button" 
                 class="btn btn-primary lid-analyze-button" 
