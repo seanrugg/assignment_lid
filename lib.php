@@ -210,4 +210,23 @@ class assign_submission_lid extends assign_submission_plugin {
         // LID is instructor-facing only in v0.1.0.
         return false;
     }
+
+    /**
+     * Load custom CSS files based on configuration.
+     *
+     * This is called automatically by Moodle's page rendering system.
+     *
+     * @param moodle_page $page The page we are going to add requirements to.
+     */
+    public function add_to_page(moodle_page $page) {
+        global $CFG;
+
+        // Always load base styles.
+        $page->requires->css('/mod/assign/submission/lid/styles.css');
+
+        // Conditionally load futuristic UI styles if enabled.
+        if (get_config('assignsubmission_lid', 'futuristicui')) {
+            $page->requires->css('/mod/assign/submission/lid/styles-futuristic.css');
+        }
+    }
 }
