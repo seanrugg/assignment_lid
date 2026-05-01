@@ -74,6 +74,21 @@ if ($ADMIN->fulltree) {
         PARAM_INT
     ));
 
+    // UI Appearance Section.
+    $settings->add(new admin_setting_heading(
+        'assignsubmission_lid/uiheading',
+        get_string('uisettings', 'assignsubmission_lid'),
+        get_string('uisettings_desc', 'assignsubmission_lid')
+    ));
+
+    // Enable Futuristic UI Mode.
+    $settings->add(new admin_setting_configcheckbox(
+        'assignsubmission_lid/futuristicui',
+        get_string('futuristicui', 'assignsubmission_lid'),
+        get_string('futuristicui_help', 'assignsubmission_lid'),
+        '0'
+    ));
+
     // Queue Processing Section.
     $settings->add(new admin_setting_heading(
         'assignsubmission_lid/queueheading',
