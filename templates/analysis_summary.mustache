@@ -18,6 +18,17 @@
     @template assignsubmission_lid/analysis_summary
 
     Template for displaying LID analysis summary in grading view.
+    
+    THEME COMPATIBILITY:
+    This template uses Bootstrap classes and Moodle's standard component
+    classes to ensure compatibility with all Moodle themes (Boost, Classic,
+    and 3rd party themes). It relies on:
+    - Bootstrap grid (row, col-*)
+    - Bootstrap utilities (text-muted, mb-*, mt-*)
+    - Bootstrap cards (card, card-body)
+    - Bootstrap buttons (btn, btn-*)
+    - Moodle's badge component
+    - Theme color variables (primary, success, etc.)
 
     Context variables required for this template:
     * hasanalysis - Boolean
@@ -33,84 +44,96 @@
     * submissionid - Submission ID
 }}
 
-<div class="assignsubmission_lid_analysis_summary">
-    <div class="lid-header">
-        <h4>{{#str}}pluginname, assignsubmission_lid{{/str}}</h4>
-        <small class="text-muted">{{#str}}analysiscompleted, assignsubmission_lid{{/str}} {{analyzedat}}</small>
-    </div>
+<div class="assignsubmission_lid_analysis_summary card">
+    <div class="card-body">
+        <div class="lid-header border-bottom border-primary">
+            <h4 class="mb-1">{{#str}}pluginname, assignsubmission_lid{{/str}}</h4>
+            <small class="text-muted">{{#str}}analysiscompleted, assignsubmission_lid{{/str}} {{analyzedat}}</small>
+        </div>
 
-    <div class="lid-scores">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="lid-metric">
-                    <span class="lid-metric-label">{{#str}}overallquality, assignsubmission_lid{{/str}}</span>
-                    <span class="lid-metric-value">{{overallquality}}</span>
+        <div class="lid-scores">
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="lid-metric card bg-light">
+                        <div class="card-body">
+                            <span class="lid-metric-label text-muted">{{#str}}overallquality, assignsubmission_lid{{/str}}</span>
+                            <span class="lid-metric-value text-primary">{{overallquality}}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="lid-metric">
-                    <span class="lid-metric-label">{{#str}}cognitivedepth, assignsubmission_lid{{/str}}</span>
-                    <span class="lid-metric-value">{{cognitivedepth}}</span>
+                <div class="col-md-3 col-sm-6">
+                    <div class="lid-metric card bg-light">
+                        <div class="card-body">
+                            <span class="lid-metric-label text-muted">{{#str}}cognitivedepth, assignsubmission_lid{{/str}}</span>
+                            <span class="lid-metric-value text-primary">{{cognitivedepth}}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="lid-metric">
-                    <span class="lid-metric-label">{{#str}}coherence, assignsubmission_lid{{/str}}</span>
-                    <span class="lid-metric-value">{{coherence}}</span>
+                <div class="col-md-3 col-sm-6">
+                    <div class="lid-metric card bg-light">
+                        <div class="card-body">
+                            <span class="lid-metric-label text-muted">{{#str}}coherence, assignsubmission_lid{{/str}}</span>
+                            <span class="lid-metric-value text-primary">{{coherence}}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="lid-metric">
-                    <span class="lid-metric-label">{{#str}}evidencequality, assignsubmission_lid{{/str}}</span>
-                    <span class="lid-metric-value">{{evidencequality}}</span>
+                <div class="col-md-3 col-sm-6">
+                    <div class="lid-metric card bg-light">
+                        <div class="card-body">
+                            <span class="lid-metric-label text-muted">{{#str}}evidencequality, assignsubmission_lid{{/str}}</span>
+                            <span class="lid-metric-value text-primary">{{evidencequality}}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{#topcompetencies}}
-    <div class="lid-competencies">
-        <h5>{{#str}}topcompetencies, assignsubmission_lid{{/str}}</h5>
-        <ul>
-            {{#topcompetencies}}
-            <li>
-                <strong>{{competency_name}}</strong> 
-                - {{bloom_label}} ({{#str}}bloomlevel, assignsubmission_lid{{/str}} {{bloom_level}})
-            </li>
-            {{/topcompetencies}}
-        </ul>
-    </div>
-    {{/topcompetencies}}
-
-    <div class="lid-feedback">
-        <div class="row">
-            <div class="col-md-6">
-                <h5>{{#str}}keystrengths, assignsubmission_lid{{/str}}</h5>
-                <ul>
-                    {{#keystrengths}}
-                    <li>{{{.}}}</li>
-                    {{/keystrengths}}
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h5>{{#str}}developmentpriorities, assignsubmission_lid{{/str}}</h5>
-                <ul>
-                    {{#developmentpriorities}}
-                    <li>{{{.}}}</li>
-                    {{/developmentpriorities}}
+        {{#topcompetencies}}
+        <div class="lid-competencies card border-left border-success">
+            <div class="card-body">
+                <h5 class="text-success">{{#str}}topcompetencies, assignsubmission_lid{{/str}}</h5>
+                <ul class="mb-0">
+                    {{#topcompetencies}}
+                    <li>
+                        <strong>{{competency_name}}</strong> 
+                        <span class="badge badge-secondary">{{bloom_label}} {{bloom_level}}</span>
+                    </li>
+                    {{/topcompetencies}}
                 </ul>
             </div>
         </div>
-    </div>
+        {{/topcompetencies}}
 
-    <div class="lid-actions">
-        <a href="#" class="btn btn-secondary">{{#str}}viewanalysis, assignsubmission_lid{{/str}}</a>
-        {{#canreanalyze}}
-        <button type="button" 
-                class="btn btn-outline-primary lid-reanalyze-button" 
-                data-submissionid="{{submissionid}}">
-            {{#str}}reanalyze, assignsubmission_lid{{/str}}
-        </button>
-        {{/canreanalyze}}
+        <div class="lid-feedback">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="h6">{{#str}}keystrengths, assignsubmission_lid{{/str}}</h5>
+                    <ul>
+                        {{#keystrengths}}
+                        <li>{{{.}}}</li>
+                        {{/keystrengths}}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="h6">{{#str}}developmentpriorities, assignsubmission_lid{{/str}}</h5>
+                    <ul>
+                        {{#developmentpriorities}}
+                        <li>{{{.}}}</li>
+                        {{/developmentpriorities}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="lid-actions border-top pt-3">
+            <a href="#" class="btn btn-secondary">{{#str}}viewanalysis, assignsubmission_lid{{/str}}</a>
+            {{#canreanalyze}}
+            <button type="button" 
+                    class="btn btn-outline-primary lid-reanalyze-button" 
+                    data-submissionid="{{submissionid}}">
+                {{#str}}reanalyze, assignsubmission_lid{{/str}}
+            </button>
+            {{/canreanalyze}}
+        </div>
     </div>
 </div>
