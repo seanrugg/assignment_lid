@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/assign/submission/lid/db" VERSION="20260430" COMMENT="XMLDB file for Assignment LID plugin"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="assignsubmission_lid_queue" COMMENT="Queue for pending LID analyses">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="assignmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Assignment ID"/>
+        <FIELD NAME="submissionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Submission ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Student user ID"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending" SEQUENCE="false" COMMENT="Status: pending, processing, completed, failed"/>
+        <FIELD NAME="priority" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Processing priority (0-10)"/>
+        <FIELD NAME="attempt" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Retry counter"/>
+        <FIELD NAME="claimed_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp when job claimed"/>
+        <FIELD NAME="claimed_by" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Processor instance ID"/>
+        <FIELD NAME="created_at" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Queue entry creation timestamp"/>
+        <FIELD NAME="processed_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Completion timestamp"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Error details if failed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="assignmentid" TYPE="foreign" FIELDS="assignmentid" REFTABLE="assign" REFFIELDS="id"/>
+        <KEY NAME="submissionid" TYPE="foreign" FIELDS="submissionid" REFTABLE="assign_submission" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="assignment_user" UNIQUE="false" FIELDS="assignmentid, userid" COMMENT="Lookup by assignment and user"/>
+        <INDEX NAME="status_priority_created" UNIQUE="false" FIELDS="status, priority, created_at" COMMENT="Queue processing optimization"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="assignsubmission_lid_analysis" COMMENT="Stored LID analysis results">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="assignmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Assignment ID"/>
+        <FIELD NAME="submissionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Submission ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Student user ID"/>
+        <FIELD NAME="submission_version" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Submission attempt number"/>
+        <FIELD NAME="analysis_json" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Full JSON output from LLM"/>
+        <FIELD NAME="analyzed_at" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Analysis timestamp"/>
+        <FIELD NAME="analyzed_by_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Instructor who triggered analysis"/>
+        <FIELD NAME="api_cost_usd" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.000000" SEQUENCE="false" DECIMALS="6" COMMENT="API cost in USD"/>
+        <FIELD NAME="input_tokens" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Input token count"/>
+        <FIELD NAME="output_tokens" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Output token count"/>
+        <FIELD NAME="thought_tokens" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Thinking token count"/>
+        <FIELD NAME="processing_time_ms" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Processing duration in milliseconds"/>
+        <FIELD NAME="model_version" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="LLM model identifier"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="assignmentid" TYPE="foreign" FIELDS="assignmentid" REFTABLE="assign" REFFIELDS="id"/>
+        <KEY NAME="submissionid" TYPE="foreign" FIELDS="submissionid" REFTABLE="assign_submission" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="analyzed_by_userid" TYPE="foreign" FIELDS="analyzed_by_userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="assignment_user_version" UNIQUE="true" FIELDS="assignmentid, userid, submission_version" COMMENT="Unique per submission version"/>
+        <INDEX NAME="analyzed_at" UNIQUE="false" FIELDS="analyzed_at" COMMENT="Temporal queries"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
