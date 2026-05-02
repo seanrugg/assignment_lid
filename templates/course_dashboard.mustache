@@ -1,0 +1,308 @@
+{{!
+    Course-Level Dashboard Template
+    
+    Shows aggregated LID analysis across all assignments in a course.
+    
+    Context: assignsubmission_lid\output\course_dashboard::export_for_template()
+}}
+{{> assignsubmission_lid/lid_styles}}
+
+<div class="lid-page lid-page-course">
+
+    {{! ── Page Header ─────────────────────────────────────────────────── }}
+    <div class="lid-page-header">
+        <div class="lid-page-header-left">
+            <h2 class="lid-heading">{{#str}}dashboard_course_title, assignsubmission_lid{{/str}}</h2>
+            <div class="lid-mono lid-muted" style="font-size:10px;margin-top:4px">
+                {{coursename}}
+            </div>
+        </div>
+    </div>
+
+    {{! ── Course Summary Statistics ───────────────────────────────────── }}
+    <div class="lid-summary-bar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
+        
+        <div class="lid-stat-card">
+            <div class="lid-stat-value">{{total_assignments}}</div>
+            <div class="lid-stat-label">Total Assignments</div>
+        </div>
+        
+        <div class="lid-stat-card lid-stat-card-success">
+            <div class="lid-stat-value">{{assignments_with_lid}}</div>
+            <div class="lid-stat-label">With LID Analysis</div>
+        </div>
+        
+        <div class="lid-stat-card">
+            <div class="lid-stat-value">{{total_analyses}}</div>
+            <div class="lid-stat-label">Total Analyses</div>
+        </div>
+        
+        {{#can_viewcosts}}
+        <div class="lid-stat-card">
+            <div class="lid-stat-value" style="font-size:24px">{{total_cost}}</div>
+            <div class="lid-stat-label">Total API Cost</div>
+        </div>
+        {{/can_viewcosts}}
+        
+    </div>
+
+    {{! ── Competency Progression Chart ────────────────────────────────── }}
+    {{#has_progression}}
+    <div class="lid-panel" style="margin-bottom:20px">
+        <div class="lid-panel-title">Competency Progression Across Assignments</div>
+        <div class="lid-progression-chart">
+            <canvas id="lid-progression-chart" height="80"></canvas>
+        </div>
+        <div class="lid-chart-legend" id="lid-chart-legend"></div>
+    </div>
+    {{/has_progression}}
+
+    {{! ── Assignment Summary Table ────────────────────────────────────── }}
+    {{#has_assignments}}
+    <div class="lid-panel">
+        <div class="lid-panel-title">Assignment Analysis Summary</div>
+        
+        <div class="lid-assignment-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Assignment Name</th>
+                        <th class="text-center">Students</th>
+                        <th class="text-center">Analyzed</th>
+                        <th class="text-center">Avg Quality</th>
+                        <th>Top Competency</th>
+                        {{#can_viewcosts}}
+                        <th class="text-right">Cost</th>
+                        {{/can_viewcosts}}
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#assignments}}
+                    <tr>
+                        <td>
+                            <strong>{{name}}</strong>
+                            <div class="lid-mono" style="font-size:9px;color:var(--lid-muted);margin-top:2px">
+                                {{timemodified}}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="lid-mono">{{total_students}}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="lid-mono" style="font-weight:600">{{analyzed_count}}</span>
+                        </td>
+                        <td class="text-center">
+                            {{#has_quality}}
+                            <span class="lid-mono" style="font-size:16px;font-weight:600;color:var(--lid-accent)">
+                                {{avg_quality}}
+                            </span>
+                            {{/has_quality}}
+                            {{^has_quality}}
+                            <span class="lid-muted">—</span>
+                            {{/has_quality}}
+                        </td>
+                        <td>
+                            <span class="lid-mono" style="font-size:11px">{{top_competency}}</span>
+                        </td>
+                        {{#can_viewcosts}}
+                        <td class="text-right">
+                            <span class="lid-mono" style="font-size:11px">{{cost}}</span>
+                        </td>
+                        {{/can_viewcosts}}
+                        <td class="text-right">
+                            <a href="{{view_url}}" class="btn btn-sm btn-outline-primary">
+                                View Dashboard
+                            </a>
+                        </td>
+                    </tr>
+                    {{/assignments}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/has_assignments}}
+
+    {{^has_assignments}}
+    <div class="lid-empty-state">
+        <div class="lid-empty-icon">📊</div>
+        <div class="lid-empty-title">No LID Analyses Yet</div>
+        <div class="lid-empty-desc">
+            No assignments in this course have LID analyses. Enable LID analysis on an assignment and analyze student submissions to see course-wide insights here.
+        </div>
+    </div>
+    {{/has_assignments}}
+
+</div>
+
+<style>
+.lid-progression-chart {
+    padding: 20px;
+    background: var(--lid-surface2, #f8f9fa);
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+.lid-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--lid-surface2, #f8f9fa);
+    border-radius: 4px;
+}
+
+.lid-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+}
+
+.lid-legend-color {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.lid-assignment-table {
+    overflow-x: auto;
+}
+
+.lid-assignment-table table {
+    margin-bottom: 0;
+}
+
+.lid-summary-bar {
+    padding: 16px;
+    background: var(--lid-surface, #f8f9fa);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: var(--lid-radius, 6px);
+}
+
+.lid-stat-card {
+    padding: 12px;
+    text-align: center;
+    background: var(--lid-surface2, white);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 4px;
+}
+
+.lid-stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--lid-text, #212529);
+}
+
+.lid-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--lid-muted, #6c757d);
+    margin-top: 4px;
+}
+
+.lid-stat-card-success .lid-stat-value {
+    color: var(--lid-accent3, #28a745);
+}
+</style>
+
+{{#js}}
+require(['jquery', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'], function($, Chart) {
+    {{#has_progression}}
+    // Competency progression chart
+    var ctx = document.getElementById('lid-progression-chart');
+    if (ctx) {
+        var chartData = {{{progression}}};
+        
+        var datasets = chartData.series.map(function(series, index) {
+            var colors = [
+                'rgba(0, 229, 255, 0.8)',   // Cyan
+                'rgba(123, 97, 255, 0.8)',  // Purple
+                'rgba(0, 255, 157, 0.8)',   // Green
+                'rgba(255, 107, 53, 0.8)',  // Orange
+                'rgba(160, 184, 204, 0.8)'  // Gray
+            ];
+            
+            return {
+                label: series.name,
+                data: series.data,
+                borderColor: colors[index % colors.length],
+                backgroundColor: colors[index % colors.length].replace('0.8', '0.1'),
+                borderWidth: 2,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            };
+        });
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': Bloom\'s L' + context.parsed.y.toFixed(1);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 6,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return 'L' + value;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Average Bloom\'s Level'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Assignments (Chronological)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+        
+        // Generate custom legend
+        var legendHtml = '';
+        datasets.forEach(function(dataset) {
+            legendHtml += '<div class="lid-legend-item">';
+            legendHtml += '<div class="lid-legend-color" style="background:' + dataset.borderColor + '"></div>';
+            legendHtml += '<span>' + dataset.label + '</span>';
+            legendHtml += '</div>';
+        });
+        $('#lid-chart-legend').html(legendHtml);
+    }
+    {{/has_progression}}
+});
+{{/js}}
