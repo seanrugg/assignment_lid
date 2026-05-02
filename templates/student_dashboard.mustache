@@ -1,0 +1,412 @@
+{{!
+    Student-Level Dashboard Template
+    
+    Shows all LID analyses for one student across all assignments in a course.
+    
+    Context: assignsubmission_lid\output\student_dashboard::export_for_template()
+}}
+{{> assignsubmission_lid/lid_styles}}
+
+<div class="lid-page lid-page-student">
+
+    {{! ── Page Header ─────────────────────────────────────────────────── }}
+    <div class="lid-page-header">
+        <div class="lid-page-header-left">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+                {{{userpic}}}
+                <div>
+                    <h2 class="lid-heading" style="margin:0">{{studentname}}</h2>
+                    <div class="lid-mono lid-muted" style="font-size:10px;margin-top:4px">
+                        {{coursename}}
+                        <span class="lid-sep">·</span>
+                        {{total_analyses}} {{#str}}analyzed, assignsubmission_lid{{/str}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{#can_export}}
+        <div class="lid-page-header-actions">
+            <a href="{{export_url}}" class="lid-btn lid-btn-primary" style="font-size:10px">
+                {{#str}}export_portfolio, assignsubmission_lid{{/str}}
+            </a>
+        </div>
+        {{/can_export}}
+    </div>
+
+    {{#has_analyses}}
+    
+    {{! ── Competency Radar Chart ──────────────────────────────────────── }}
+    {{#has_radar}}
+    <div class="lid-panel" style="margin-bottom:20px">
+        <div class="lid-panel-title">Competency Development Profile</div>
+        <div class="lid-radar-container">
+            <canvas id="lid-radar-chart" width="400" height="400"></canvas>
+        </div>
+        <div class="lid-radar-legend">
+            <div class="lid-mono" style="font-size:9px;color:var(--lid-muted);text-align:center">
+                Maximum Bloom's Level Demonstrated Across All Assignments
+            </div>
+        </div>
+    </div>
+    {{/has_radar}}
+
+    {{! ── Assignment Timeline ──────────────────────────────────────────── }}
+    {{#has_timeline}}
+    <div class="lid-panel" style="margin-bottom:20px">
+        <div class="lid-panel-title">Assignment Timeline</div>
+        
+        <div class="lid-timeline">
+            {{#timeline}}
+            <div class="lid-timeline-card">
+                <div class="lid-timeline-header">
+                    <div>
+                        <div class="lid-timeline-assignment">{{assignmentname}}</div>
+                        <div class="lid-timeline-date">{{submission_date}}</div>
+                    </div>
+                    {{#has_quality}}
+                    <div class="lid-timeline-score">
+                        <div class="lid-score-circle">{{quality_score}}</div>
+                        <div class="lid-score-label">Quality</div>
+                    </div>
+                    {{/has_quality}}
+                </div>
+                
+                {{#has_competencies}}
+                <div class="lid-timeline-competencies">
+                    {{#competencies}}
+                    <span class="lid-comp-badge">
+                        {{name}}
+                        <span class="lid-bloom-mini">L{{bloom_level}}</span>
+                    </span>
+                    {{/competencies}}
+                </div>
+                {{/has_competencies}}
+                
+                {{#feedback_summary}}
+                <div class="lid-timeline-feedback">
+                    {{feedback_summary}}
+                </div>
+                {{/feedback_summary}}
+            </div>
+            {{/timeline}}
+        </div>
+    </div>
+    {{/has_timeline}}
+
+    {{! ── Competency Evidence Portfolio ────────────────────────────────── }}
+    {{#has_portfolio}}
+    <div class="lid-panel">
+        <div class="lid-panel-title">Competency Evidence Portfolio</div>
+        
+        <div class="lid-portfolio">
+            {{#portfolio}}
+            <div class="lid-portfolio-section">
+                <div class="lid-portfolio-header">
+                    <div class="lid-portfolio-comp-name">{{competency}}</div>
+                    <div class="lid-portfolio-meta">
+                        <span class="badge badge-purple">Max Bloom's L{{max_bloom}}</span>
+                        <span class="lid-mono" style="font-size:9px;color:var(--lid-muted)">
+                            {{evidence_count}} evidence excerpt{{#evidence_count}}s{{/evidence_count}}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="lid-portfolio-evidence">
+                    {{#evidence}}
+                    <div class="lid-evidence-card">
+                        <div class="lid-evidence-header">
+                            <span class="lid-mono" style="font-size:10px;font-weight:600">{{assignment}}</span>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <span class="badge badge-secondary" style="font-size:8px">L{{bloom_level}}</span>
+                                {{#depth_rating}}
+                                <span class="badge badge-cyan" style="font-size:8px">{{depth_rating}}</span>
+                                {{/depth_rating}}
+                            </div>
+                        </div>
+                        <div class="lid-evidence-excerpt">
+                            "{{excerpt}}"
+                        </div>
+                    </div>
+                    {{/evidence}}
+                </div>
+            </div>
+            {{/portfolio}}
+        </div>
+    </div>
+    {{/has_portfolio}}
+    
+    {{/has_analyses}}
+
+    {{^has_analyses}}
+    <div class="lid-empty-state">
+        <div class="lid-empty-icon">📚</div>
+        <div class="lid-empty-title">No Analyses Yet</div>
+        <div class="lid-empty-desc">
+            {{studentname}} does not have any LID-analyzed submissions in this course yet.
+        </div>
+    </div>
+    {{/has_analyses}}
+
+</div>
+
+<style>
+/* Radar chart container */
+.lid-radar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: var(--lid-surface2, #f8f9fa);
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+.lid-radar-legend {
+    margin-top: 12px;
+    padding: 8px;
+}
+
+/* Timeline */
+.lid-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.lid-timeline-card {
+    background: var(--lid-surface2, #f8f9fa);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 6px;
+    padding: 16px;
+    border-left: 3px solid var(--lid-accent, #0066cc);
+}
+
+.lid-timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.lid-timeline-assignment {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lid-text, #212529);
+    margin-bottom: 4px;
+}
+
+.lid-timeline-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--lid-muted, #6c757d);
+}
+
+.lid-timeline-score {
+    text-align: center;
+}
+
+.lid-score-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--lid-accent, #0066cc);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    margin: 0 auto 4px;
+}
+
+.lid-score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    color: var(--lid-muted, #6c757d);
+}
+
+.lid-timeline-competencies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.lid-comp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--lid-surface, white);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+}
+
+.lid-bloom-mini {
+    font-size: 8px;
+    padding: 2px 4px;
+    background: var(--lid-accent2, #7b61ff);
+    color: white;
+    border-radius: 2px;
+}
+
+.lid-timeline-feedback {
+    font-size: 11px;
+    color: var(--lid-muted, #6c757d);
+    font-style: italic;
+    line-height: 1.6;
+    padding-top: 12px;
+    border-top: 1px solid var(--lid-border, #dee2e6);
+}
+
+/* Portfolio */
+.lid-portfolio {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.lid-portfolio-section {
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.lid-portfolio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--lid-surface2, #f8f9fa);
+    border-bottom: 1px solid var(--lid-border, #dee2e6);
+}
+
+.lid-portfolio-comp-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--lid-text, #212529);
+}
+
+.lid-portfolio-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lid-portfolio-evidence {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lid-evidence-card {
+    background: var(--lid-surface, white);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.lid-evidence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.lid-evidence-excerpt {
+    font-size: 11px;
+    color: var(--lid-muted, #6c757d);
+    line-height: 1.6;
+    font-style: italic;
+    padding-left: 12px;
+    border-left: 2px solid var(--lid-accent, #0066cc);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lid-timeline-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .lid-portfolio-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+</style>
+
+{{#js}}
+require(['jquery', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'], function($, Chart) {
+    {{#has_radar}}
+    // Competency radar chart
+    var ctx = document.getElementById('lid-radar-chart');
+    if (ctx) {
+        var radarData = {{{radar_data}}};
+        
+        var labels = radarData.map(function(item) { return item.label; });
+        var values = radarData.map(function(item) { return item.value; });
+        
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Max Bloom\'s Level',
+                    data: values,
+                    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                    borderColor: 'rgba(0, 229, 255, 0.8)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(0, 229, 255, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 6,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return 'L' + value;
+                            }
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 11,
+                                family: "'DM Mono', monospace"
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Bloom\'s Level ' + context.parsed.r;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {{/has_radar}}
+});
+{{/js}}
