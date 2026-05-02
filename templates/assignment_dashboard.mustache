@@ -1,0 +1,281 @@
+{{!
+    Assignment-Level Dashboard Template
+    
+    Shows LID analysis results for all students in one assignment.
+    
+    Context: assignsubmission_lid\output\assignment_dashboard::export_for_template()
+}}
+{{> assignsubmission_lid/lid_styles}}
+
+<div class="lid-page lid-page-assignment">
+
+    {{! ── Page Header ─────────────────────────────────────────────────── }}
+    <div class="lid-page-header">
+        <div class="lid-page-header-left">
+            <h2 class="lid-heading">{{#str}}dashboard_assignment_title, assignsubmission_lid{{/str}}</h2>
+            <div class="lid-mono lid-muted" style="font-size:10px;margin-top:4px">
+                {{assignmentname}}
+                <span class="lid-sep">·</span>
+                {{coursename}}
+            </div>
+        </div>
+        {{#can_analyze}}
+        <div class="lid-page-header-actions">
+            <a href="{{export_csv_url}}" class="lid-btn lid-btn-secondary" style="font-size:10px">
+                {{#str}}export_csv, assignsubmission_lid{{/str}}
+            </a>
+            <a href="{{analyze_all_url}}" class="lid-btn lid-btn-primary" style="font-size:10px">
+                {{#str}}analyze_all_unanalyzed, assignsubmission_lid{{/str}}
+            </a>
+        </div>
+        {{/can_analyze}}
+    </div>
+
+    {{! ── Summary Statistics ──────────────────────────────────────────── }}
+    <div class="lid-summary-bar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+        
+        <div class="lid-stat-card">
+            <div class="lid-stat-value">{{total_students}}</div>
+            <div class="lid-stat-label">Total Students</div>
+        </div>
+        
+        <div class="lid-stat-card">
+            <div class="lid-stat-value">{{submitted_count}}</div>
+            <div class="lid-stat-label">Submitted</div>
+        </div>
+        
+        <div class="lid-stat-card lid-stat-card-success">
+            <div class="lid-stat-value">{{analyzed_count}}</div>
+            <div class="lid-stat-label">Analyzed</div>
+        </div>
+        
+        {{#pending_count}}
+        <div class="lid-stat-card lid-stat-card-warning">
+            <div class="lid-stat-value">{{pending_count}}</div>
+            <div class="lid-stat-label">Pending Analysis</div>
+        </div>
+        {{/pending_count}}
+        
+        {{#can_viewcosts}}
+        <div class="lid-stat-card">
+            <div class="lid-stat-value" style="font-size:24px">{{total_cost}}</div>
+            <div class="lid-stat-label">Total API Cost</div>
+        </div>
+        {{/can_viewcosts}}
+        
+    </div>
+
+    {{! ── Aggregate Summary (if analyses exist) ──────────────────────── }}
+    {{#has_summary}}
+    <div class="lid-aggregate-panel" style="margin-bottom:20px">
+        <div class="lid-panel-title">Assignment-Wide Summary</div>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px">
+            
+            <div class="lid-score-card cyan">
+                <div class="lid-score-label">Avg Quality Score</div>
+                <div class="lid-score-value">{{summary.avg_quality}}</div>
+                <div class="score-desc">Across all analyzed submissions</div>
+            </div>
+            
+            <div class="lid-score-card purple">
+                <div class="lid-score-label">Avg Cognitive Depth</div>
+                <div class="lid-score-value">{{summary.avg_depth}}</div>
+                <div class="score-desc">Analysis, synthesis &amp; meta-cognition</div>
+            </div>
+            
+        </div>
+        
+        {{! Top competencies }}
+        {{#summary.top_competencies}}
+        <div class="lid-panel" style="margin-bottom:12px">
+            <div class="lid-panel-title">Top Demonstrated Competencies</div>
+            <div class="lid-comp-list" style="display:flex;flex-direction:column;gap:10px">
+                {{#summary.top_competencies}}
+                <div class="lid-comp-item">
+                    <div class="lid-comp-header">
+                        <span class="lid-comp-name">{{name}}</span>
+                        <div class="lid-comp-meta">
+                            <span class="lid-mono" style="font-size:10px;color:var(--lid-muted)">{{count}} students</span>
+                            <span class="bloom-badge">Avg Bloom's L{{avg_bloom}}</span>
+                        </div>
+                    </div>
+                    <div class="lid-comp-bar-bg">
+                        <div class="lid-comp-bar-fill cyan" style="width:{{percentage}}%"></div>
+                    </div>
+                </div>
+                {{/summary.top_competencies}}
+            </div>
+        </div>
+        {{/summary.top_competencies}}
+        
+    </div>
+    {{/has_summary}}
+
+    {{! ── Student List Table ──────────────────────────────────────────── }}
+    {{#has_students}}
+    <div class="lid-student-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Submission Status</th>
+                    <th>Analysis Status</th>
+                    <th class="text-center">Quality Score</th>
+                    <th>Top Competencies</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#students}}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            {{{userpic}}}
+                            <span>{{fullname}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {{#submitted}}
+                        <span class="badge badge-success">Submitted</span>
+                        <div class="lid-mono" style="font-size:9px;color:var(--lid-muted);margin-top:2px">{{submission_date}}</div>
+                        {{/submitted}}
+                        {{#not_submitted}}
+                        <span class="badge badge-secondary">Not Submitted</span>
+                        {{/not_submitted}}
+                    </td>
+                    <td>
+                        {{#analyzed}}
+                        <span class="lid-status-badge lid-status-complete">Complete</span>
+                        <div class="lid-mono" style="font-size:9px;color:var(--lid-muted);margin-top:2px">{{analysis_date}}</div>
+                        {{/analyzed}}
+                        {{#pending}}
+                        <span class="lid-status-badge lid-status-pending">Pending</span>
+                        {{/pending}}
+                        {{#not_analyzed}}
+                        <span class="badge badge-secondary">Not Analyzed</span>
+                        {{/not_analyzed}}
+                    </td>
+                    <td class="text-center">
+                        {{#has_score}}
+                        <span class="lid-mono" style="font-size:16px;font-weight:600;color:var(--lid-accent)">{{overall_score}}</span>
+                        {{/has_score}}
+                        {{^has_score}}
+                        <span class="lid-muted">—</span>
+                        {{/has_score}}
+                    </td>
+                    <td>
+                        {{#top_competencies}}
+                        <span class="lid-mono" style="font-size:10px;color:var(--lid-text)">{{top_competencies}}</span>
+                        {{/top_competencies}}
+                        {{^top_competencies}}
+                        <span class="lid-muted">—</span>
+                        {{/top_competencies}}
+                    </td>
+                    <td class="text-right">
+                        {{#analyzed}}
+                        <a href="{{view_url}}" class="btn btn-sm btn-outline-primary">View Analysis</a>
+                        {{/analyzed}}
+                        {{#not_analyzed}}
+                        {{#can_analyze}}
+                        <button class="btn btn-sm btn-primary lid-js-analyze" data-userid="{{userid}}">
+                            Analyze Now
+                        </button>
+                        {{/can_analyze}}
+                        {{/not_analyzed}}
+                    </td>
+                </tr>
+                {{/students}}
+            </tbody>
+        </table>
+    </div>
+    {{/has_students}}
+
+    {{^has_students}}
+    <div class="lid-empty-state">
+        <div class="lid-empty-icon">📊</div>
+        <div class="lid-empty-title">No Students Found</div>
+        <div class="lid-empty-desc">No students are enrolled in this course with submission capability.</div>
+    </div>
+    {{/has_students}}
+
+</div>
+
+<style>
+.lid-summary-bar {
+    padding: 16px;
+    background: var(--lid-surface, #f8f9fa);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: var(--lid-radius, 6px);
+}
+
+.lid-stat-card {
+    padding: 12px;
+    text-align: center;
+    background: var(--lid-surface2, white);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: 4px;
+}
+
+.lid-stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--lid-text, #212529);
+}
+
+.lid-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--lid-muted, #6c757d);
+    margin-top: 4px;
+}
+
+.lid-stat-card-success .lid-stat-value {
+    color: var(--lid-accent3, #28a745);
+}
+
+.lid-stat-card-warning .lid-stat-value {
+    color: var(--lid-warn, #ffc107);
+}
+
+.lid-student-table {
+    background: white;
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: var(--lid-radius, 6px);
+    overflow: hidden;
+}
+
+.lid-student-table table {
+    margin-bottom: 0;
+}
+
+.lid-js-analyze {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+</style>
+
+{{#js}}
+require(['jquery'], function($) {
+    // Analyze Now button handler
+    $('.lid-js-analyze').on('click', function(e) {
+        e.preventDefault();
+        var userid = $(this).data('userid');
+        var assignid = {{assignid}};
+        
+        // TODO: Implement AJAX analyze action
+        console.log('Analyze user ' + userid + ' for assignment ' + assignid);
+        
+        // Show loading state
+        $(this).prop('disabled', true).text('Queueing...');
+        
+        // In production, make AJAX call to queue analysis
+        // $.post('/mod/assign/submission/lid/actions.php', { ... });
+    });
+});
+{{/js}}
