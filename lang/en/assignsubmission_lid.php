@@ -101,6 +101,7 @@ $string['totalcost'] = 'Total Cost';
 $string['export_csv'] = 'Export CSV';
 $string['analyze_all_unanalyzed'] = 'Analyze All Unanalyzed';
 $string['analyze_now'] = 'Analyze Now';
+$string['export_portfolio'] = 'Export Portfolio (PDF)';
 
 // Analysis result strings.
 $string['overallquality'] = 'Overall Quality';
