@@ -81,6 +81,9 @@ $string['noanalysis'] = 'No analysis available for this submission.';
 $string['analysisunavailable'] = 'Analysis unavailable.';
 
 // Dashboard strings.
+$string['dashboard_assignment_title'] = 'Assignment Analysis Dashboard';
+$string['dashboard_course_title'] = 'Course Analysis Dashboard';
+$string['dashboard_student_title'] = '{$a} — Learning Portfolio';
 $string['dashboardassignment'] = 'Assignment Analysis Dashboard';
 $string['dashboardcourse'] = 'Course Analysis Dashboard';
 $string['dashboardstudent'] = 'Student Analysis Dashboard';
@@ -95,6 +98,9 @@ $string['averagedepth'] = 'Average Cognitive Depth';
 $string['topcompetencies'] = 'Top Competencies';
 $string['apicost'] = 'API Cost';
 $string['totalcost'] = 'Total Cost';
+$string['export_csv'] = 'Export CSV';
+$string['analyze_all_unanalyzed'] = 'Analyze All Unanalyzed';
+$string['analyze_now'] = 'Analyze Now';
 
 // Analysis result strings.
 $string['overallquality'] = 'Overall Quality';
