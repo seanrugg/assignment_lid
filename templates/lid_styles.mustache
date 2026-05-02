@@ -1,0 +1,182 @@
+{{!
+    Shared LID Styles Partial
+    
+    This partial contains the base CSS styles used across all LID dashboard views.
+    It provides theme-compatible styling that works with both LID branding mode
+    and standard Moodle themes.
+    
+    Include at the top of all dashboard templates:
+    {{> assignsubmission_lid/lid_styles}}
+}}
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   LID Dashboard Base Styles
+   These styles are always loaded and work with any Moodle theme.
+   When LID branding is enabled, styles-lid-brand.css enhances these.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.lid-page {
+    font-family: var(--font-family-sans-serif, -apple-system, sans-serif);
+    padding: 24px;
+    background: var(--lid-bg, #fff);
+    color: var(--lid-text, #212529);
+    border-radius: var(--lid-radius, 6px);
+    min-height: 400px;
+}
+
+/* ── Page Header ──────────────────────────────────────────────────── */
+.lid-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.lid-page-header-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.lid-page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lid-heading {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--primary, #0066cc);
+}
+
+.lid-mono {
+    font-family: 'Courier New', monospace;
+}
+
+.lid-muted {
+    color: var(--text-muted, #6c757d);
+}
+
+.lid-sep {
+    margin: 0 6px;
+    color: var(--lid-dim, #ccc);
+}
+
+/* ── Panels ────────────────────────────────────────────────────────── */
+.lid-panel {
+    background: var(--lid-surface, #f8f9fa);
+    border: 1px solid var(--lid-border, #dee2e6);
+    border-radius: var(--lid-radius, 6px);
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.lid-panel-title {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--lid-muted, #6c757d);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lid-panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--lid-border, #dee2e6);
+}
+
+/* ── Empty States ──────────────────────────────────────────────────── */
+.lid-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+}
+
+.lid-empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.lid-empty-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--lid-muted, #6c757d);
+    margin-bottom: 10px;
+}
+
+.lid-empty-desc {
+    font-size: 14px;
+    color: var(--lid-dim, #adb5bd);
+    max-width: 420px;
+    line-height: 1.6;
+}
+
+/* ── Competency Bars ───────────────────────────────────────────────── */
+.lid-comp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lid-comp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.lid-comp-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--lid-text, #212529);
+}
+
+.lid-comp-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lid-comp-bar-bg {
+    height: 4px;
+    background: var(--lid-dim, #e9ecef);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.lid-comp-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--primary, #0066cc);
+    transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .lid-page {
+        padding: 16px;
+    }
+    
+    .lid-page-header {
+        flex-direction: column;
+    }
+    
+    .lid-page-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+</style>
