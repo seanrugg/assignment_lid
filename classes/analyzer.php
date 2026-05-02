@@ -131,7 +131,7 @@ class analyzer {
         }
 
         // Build options from plugin config.
-        $options = $this->get_analysis_options($submission->assignment);
+        $options = $this->get_analysis_options($submission->assignment, $assignment);
 
         // Build prompt.
         $prompt = $this->promptbuilder->build_prompt($submission, $assignment, $context, $options);
@@ -152,9 +152,10 @@ class analyzer {
      * Get analysis options from plugin configuration.
      *
      * @param int $assignmentid Assignment ID.
+     * @param object $assignment Assignment instance.
      * @return array Options array.
      */
-    private function get_analysis_options(int $assignmentid): array {
+    private function get_analysis_options(int $assignmentid, object $assignment): array {
         global $DB;
 
         $options = [];
@@ -178,6 +179,14 @@ class analyzer {
         ]);
 
         $options['include_rubric'] = ($rubricscores && $rubricscores->value == 1);
+
+        // Extract grading criteria (handles all grading methods).
+        require_once(__DIR__ . '/grading_method_handler.php');
+        $gradinghandler = new grading_method_handler($assignment, $assignmentid);
+        
+        $options['grading_method'] = $gradinghandler->detect_grading_method();
+        $options['grading_criteria'] = $gradinghandler->get_grading_criteria();
+        $options['is_advanced_grading'] = $gradinghandler->is_advanced_grading();
 
         return $options;
     }
