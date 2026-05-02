@@ -102,6 +102,9 @@ $string['export_csv'] = 'Export CSV';
 $string['analyze_all_unanalyzed'] = 'Analyze All Unanalyzed';
 $string['analyze_now'] = 'Analyze Now';
 $string['export_portfolio'] = 'Export Portfolio (PDF)';
+$string['queueing'] = 'Queueing';
+$string['processing'] = 'Processing';
+$string['batchanalyzequeued'] = '{$a->queued} submissions queued for analysis ({$a->total} total)';
 
 // Analysis result strings.
 $string['overallquality'] = 'Overall Quality';
