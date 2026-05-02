@@ -1,0 +1,184 @@
+{{!
+    Grading Table Cell Template
+    
+    Shows LID analysis status in the assignment grading table.
+    
+    Context:
+    - analyzed (bool): Has analysis
+    - pending (bool): In queue
+    - processing (bool): Currently processing
+    - notqueued (bool): Not analyzed and not queued
+    - cananalyze (bool): User has analyze permission
+    - userid (int): Student user ID
+    - assignmentid (int): Assignment ID
+    - analyzedat (string): Analysis timestamp (if analyzed)
+    - cost (string): API cost (if analyzed and can view costs)
+    - viewurl (moodle_url): URL to view analysis (if analyzed)
+}}
+
+<div class="lid-grading-cell">
+    {{#analyzed}}
+    <div class="lid-status-indicator lid-status-analyzed" title="{{#str}}analyzed, assignsubmission_lid{{/str}}: {{analyzedat}}{{#cost}} · {{cost}}{{/cost}}">
+        <span class="lid-status-icon">✓</span>
+        <a href="{{viewurl}}" class="lid-view-link" target="_blank">
+            {{#str}}viewanalysis, assignsubmission_lid{{/str}}
+        </a>
+    </div>
+    {{/analyzed}}
+
+    {{#pending}}
+    <div class="lid-status-indicator lid-status-pending" title="{{#str}}analysispending, assignsubmission_lid{{/str}}">
+        <span class="lid-status-icon">⏳</span>
+        <span class="lid-status-text">{{#str}}pending, assignsubmission_lid{{/str}}</span>
+    </div>
+    {{/pending}}
+
+    {{#processing}}
+    <div class="lid-status-indicator lid-status-processing" title="{{#str}}processing, assignsubmission_lid{{/str}}">
+        <span class="lid-status-spinner"></span>
+        <span class="lid-status-text">{{#str}}processing, assignsubmission_lid{{/str}}</span>
+    </div>
+    {{/processing}}
+
+    {{#notqueued}}
+    {{#cananalyze}}
+    <button class="btn btn-sm btn-outline-primary lid-analyze-btn" 
+            data-userid="{{userid}}" 
+            data-assignmentid="{{assignmentid}}"
+            title="{{#str}}analyze, assignsubmission_lid{{/str}}">
+        {{#str}}analyze, assignsubmission_lid{{/str}}
+    </button>
+    {{/cananalyze}}
+    {{^cananalyze}}
+    <div class="lid-status-indicator lid-status-notqueued">
+        <span class="lid-status-icon">∅</span>
+    </div>
+    {{/cananalyze}}
+    {{/notqueued}}
+</div>
+
+<style>
+.lid-grading-cell {
+    min-width: 120px;
+}
+
+.lid-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.lid-status-icon {
+    font-size: 14px;
+}
+
+.lid-status-analyzed .lid-status-icon {
+    color: var(--lid-accent3, #28a745);
+}
+
+.lid-status-pending .lid-status-icon {
+    color: var(--lid-warn, #ffc107);
+}
+
+.lid-status-notqueued .lid-status-icon {
+    color: var(--lid-dim, #adb5bd);
+}
+
+.lid-view-link {
+    font-size: 10px;
+    text-decoration: none;
+    color: var(--lid-accent, #0066cc);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+}
+
+.lid-view-link:hover {
+    text-decoration: underline;
+}
+
+.lid-status-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--lid-muted, #6c757d);
+}
+
+.lid-analyze-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+}
+
+.lid-status-spinner {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--lid-border, #dee2e6);
+    border-top-color: var(--lid-accent, #0066cc);
+    border-radius: 50%;
+    animation: lid-spin 0.8s linear infinite;
+}
+
+@keyframes lid-spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+{{#js}}
+require(['jquery', 'core/notification'], function($, Notification) {
+    $('.lid-analyze-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        var button = $(this);
+        var userid = button.data('userid');
+        var assignmentid = button.data('assignmentid');
+        
+        // Show loading state
+        button.prop('disabled', true).html('{{#str}}queueing, assignsubmission_lid{{/str}}...');
+        
+        // AJAX request to queue analysis
+        $.ajax({
+            url: M.cfg.wwwroot + '/mod/assign/submission/lid/actions.php',
+            method: 'POST',
+            data: {
+                action: 'analyze',
+                userid: userid,
+                assignmentid: assignmentid,
+                sesskey: M.cfg.sesskey
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Replace button with pending indicator
+                    button.parent().html(
+                        '<div class="lid-status-indicator lid-status-pending">' +
+                        '<span class="lid-status-icon">⏳</span>' +
+                        '<span class="lid-status-text">{{#str}}pending, assignsubmission_lid{{/str}}</span>' +
+                        '</div>'
+                    );
+                    
+                    Notification.addNotification({
+                        message: '{{#str}}analysispending, assignsubmission_lid{{/str}}',
+                        type: 'success'
+                    });
+                } else {
+                    button.prop('disabled', false).html('{{#str}}analyze, assignsubmission_lid{{/str}}');
+                    Notification.addNotification({
+                        message: response.error || '{{#str}}error:unknown, assignsubmission_lid{{/str}}',
+                        type: 'error'
+                    });
+                }
+            },
+            error: function() {
+                button.prop('disabled', false).html('{{#str}}analyze, assignsubmission_lid{{/str}}');
+                Notification.addNotification({
+                    message: '{{#str}}error:unknown, assignsubmission_lid{{/str}}',
+                    type: 'error'
+                });
+            }
+        });
+    });
+});
+{{/js}}
