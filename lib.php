@@ -224,9 +224,81 @@ class assign_submission_lid extends assign_submission_plugin {
         // Always load base styles.
         $page->requires->css('/mod/assign/submission/lid/styles.css');
 
-        // Conditionally load futuristic UI styles if enabled.
+        // Conditionally load LID branding styles if enabled.
         if (get_config('assignsubmission_lid', 'futuristicui')) {
-            $page->requires->css('/mod/assign/submission/lid/styles-futuristic.css');
+            $page->requires->css('/mod/assign/submission/lid/styles-lid-brand.css');
         }
+    }
+
+    /**
+     * Add a custom column to the grading table.
+     *
+     * This shows LID analysis status for each student in the grading table.
+     *
+     * @param stdClass $grade The grade record
+     * @param stdClass $submission The submission record
+     * @return string HTML for the column
+     */
+    public function format_for_table($submission) {
+        global $DB, $OUTPUT;
+
+        // Check if LID is enabled for this assignment.
+        if (!$this->get_config('enabled')) {
+            return '';
+        }
+
+        // Get the analysis for this submission.
+        $analysis = $DB->get_record('assignsubmission_lid_analysis', [
+            'assignmentid' => $this->assignment->get_instance()->id,
+            'userid' => $submission->userid,
+            'submission_version' => $submission->attemptnumber ?? 0,
+        ]);
+
+        // Check if in queue.
+        $queued = $DB->record_exists('assignsubmission_lid_queue', [
+            'assignmentid' => $this->assignment->get_instance()->id,
+            'userid' => $submission->userid,
+            'status' => 'pending',
+        ]);
+
+        $processing = $DB->record_exists('assignsubmission_lid_queue', [
+            'assignmentid' => $this->assignment->get_instance()->id,
+            'userid' => $submission->userid,
+            'status' => 'processing',
+        ]);
+
+        $cananalyze = has_capability('assignsubmission/lid:analyze', $this->assignment->get_context());
+
+        $data = [
+            'analyzed' => (bool)$analysis,
+            'pending' => $queued,
+            'processing' => $processing,
+            'notqueued' => !$analysis && !$queued && !$processing,
+            'cananalyze' => $cananalyze,
+            'userid' => $submission->userid,
+            'assignmentid' => $this->assignment->get_instance()->id,
+        ];
+
+        if ($analysis) {
+            $data['analyzedat'] = userdate($analysis->analyzed_at, get_string('strftimedatetimeshort'));
+            if (has_capability('assignsubmission/lid:viewcosts', $this->assignment->get_context())) {
+                $data['cost'] = '$' . number_format($analysis->api_cost_usd, 4);
+            }
+            $data['viewurl'] = new \moodle_url('/mod/assign/submission/lid/view.php', [
+                'assignid' => $this->assignment->get_instance()->id,
+                'userid' => $submission->userid,
+            ]);
+        }
+
+        return $OUTPUT->render_from_template('assignsubmission_lid/grading_table_cell', $data);
+    }
+
+    /**
+     * Get the name of the grading table column.
+     *
+     * @return string
+     */
+    public function get_editor_text() {
+        return get_string('lid', 'assignsubmission_lid');
     }
 }
