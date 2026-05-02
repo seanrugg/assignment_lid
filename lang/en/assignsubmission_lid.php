@@ -106,6 +106,12 @@ $string['queueing'] = 'Queueing';
 $string['processing'] = 'Processing';
 $string['batchanalyzequeued'] = '{$a->queued} submissions queued for analysis ({$a->total} total)';
 
+// Grading method strings.
+$string['gradingmethod_rubric'] = 'Rubric (Advanced Grading)';
+$string['gradingmethod_guide'] = 'Marking Guide (Advanced Grading)';
+$string['gradingmethod_scale'] = 'Custom Scale';
+$string['gradingmethod_point'] = 'Simple Direct Grading';
+
 // Analysis result strings.
 $string['overallquality'] = 'Overall Quality';
 $string['cognitivedepth'] = 'Cognitive Depth';
