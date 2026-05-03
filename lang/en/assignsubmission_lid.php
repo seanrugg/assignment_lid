@@ -112,6 +112,50 @@ $string['gradingmethod_guide'] = 'Marking Guide (Advanced Grading)';
 $string['gradingmethod_scale'] = 'Custom Scale';
 $string['gradingmethod_point'] = 'Simple Direct Grading';
 
+// Export strings.
+$string['student'] = 'Student';
+$string['assignment'] = 'Assignment';
+$string['submissiondate'] = 'Submission Date';
+$string['overallquality'] = 'Overall Quality';
+$string['coherence'] = 'Coherence';
+$string['evidencequality'] = 'Evidence Quality';
+$string['analyzeddate'] = 'Analyzed Date';
+$string['noanalysestoexport'] = 'No analyses found to export';
+$string['invalidformat'] = 'Invalid export format: {$a}';
+$string['exporterror'] = 'Export error: {$a}';
+$string['learningportfolio'] = 'Learning Portfolio';
+$string['competencysummary'] = 'Competency Summary';
+$string['assignmentdetails'] = 'Assignment Details';
+
+// Privacy provider strings.
+$string['privacy:metadata:queue'] = 'Queue of submissions pending LID analysis';
+$string['privacy:metadata:queue:userid'] = 'The ID of the student whose submission is queued for analysis';
+$string['privacy:metadata:queue:created_at'] = 'When the analysis was queued';
+$string['privacy:metadata:analysis'] = 'Stored LID analysis results';
+$string['privacy:metadata:analysis:userid'] = 'The ID of the student whose submission was analyzed';
+$string['privacy:metadata:analysis:analysis_json'] = 'The complete analysis output from the AI system, including competency assessments and formative feedback';
+$string['privacy:metadata:analysis:analyzed_at'] = 'When the analysis was completed';
+$string['privacy:metadata:analysis:analyzed_by_userid'] = 'The ID of the instructor who triggered the analysis';
+$string['privacy:metadata:google'] = 'Learning Intelligence Dashboard uses Google AI Studio (Gemini API) to analyze student submissions';
+$string['privacy:metadata:google:submission_text'] = 'The text content of the student submission (sent to Google for AI analysis)';
+$string['privacy:metadata:google:userid'] = 'The student\'s user ID (sent as an integer, not name or email)';
+
+// Error messages.
+$string['error:emptysubmission'] = 'Cannot analyze empty submission';
+$string['error:unsupportedfiletype'] = 'Unsupported file type: {$a}';
+$string['error:fileextraction'] = 'Failed to extract text from file';
+$string['error:apiconnection'] = 'API connection failed. Please check your internet connection and try again.';
+$string['error:apiauthentication'] = 'API authentication failed. Please check your API key.';
+$string['error:apiratelimit'] = 'API rate limit exceeded. Please wait a few minutes and try again.';
+$string['error:apiquota'] = 'API quota exceeded. Please check your Google AI Studio usage limits.';
+$string['error:invalidresponse'] = 'Invalid response from AI service. The analysis may need to be retried.';
+$string['error:jsonvalidation'] = 'Analysis output failed validation. The AI response was malformed.';
+$string['error:unknown'] = 'An unknown error occurred';
+$string['error:emptyapikey'] = 'API key cannot be empty';
+$string['error:apikeytooshort'] = 'API key appears too short (minimum 20 characters)';
+$string['error:apikeyinvalidformat'] = 'API key contains invalid characters';
+$string['apikey_warning'] = 'Could not verify API key. Please ensure it is correct and has access to Google AI Studio.';
+
 // Analysis result strings.
 $string['overallquality'] = 'Overall Quality';
 $string['cognitivedepth'] = 'Cognitive Depth';
