@@ -50,19 +50,14 @@ if ($ADMIN->fulltree) {
         PARAM_URL
     ));
 
-    // Model Selection.
-    $modeloptions = [
-        'gemini-2.0-flash-exp' => 'Gemini 2.0 Flash (Experimental)',
-        'gemini-2.5-flash' => 'Gemini 2.5 Flash (Recommended)',
-        'gemini-1.5-pro' => 'Gemini 1.5 Pro',
-        'gemini-1.5-flash' => 'Gemini 1.5 Flash',
-    ];
-    $settings->add(new admin_setting_configselect(
+    // Model — free text, model-agnostic. Cast to string at read time.
+    // Examples: gemini-2.5-flash, gemini-2.5-pro, gpt-4o, claude-sonnet-4-6
+    $settings->add(new admin_setting_configtext(
         'assignsubmission_lid/model',
         get_string('model', 'assignsubmission_lid'),
         get_string('model_help', 'assignsubmission_lid'),
         'gemini-2.5-flash',
-        $modeloptions
+        PARAM_TEXT
     ));
 
     // Max Output Tokens.
@@ -81,7 +76,7 @@ if ($ADMIN->fulltree) {
         get_string('uisettings_desc', 'assignsubmission_lid')
     ));
 
-    // Enable Futuristic UI Mode.
+    // Enable LID Branding Mode.
     $settings->add(new admin_setting_configcheckbox(
         'assignsubmission_lid/futuristicui',
         get_string('futuristicui', 'assignsubmission_lid'),
@@ -139,12 +134,15 @@ if ($ADMIN->fulltree) {
     ));
 
     // Cost per 1M Input Tokens.
+    // Note: PARAM_RAW used instead of PARAM_FLOAT — Moodle's PARAM_FLOAT rejects
+    // decimal values on servers using non-English locales. Values are cast to (float)
+    // at read time in gemini_client.php.
     $settings->add(new admin_setting_configtext(
         'assignsubmission_lid/costper1minputtokens',
         get_string('costper1minputtokens', 'assignsubmission_lid'),
         get_string('costper1minputtokens_help', 'assignsubmission_lid'),
         '0.075',
-        PARAM_FLOAT
+        PARAM_RAW
     ));
 
     // Cost per 1M Output Tokens.
@@ -153,7 +151,7 @@ if ($ADMIN->fulltree) {
         get_string('costper1moutputtokens', 'assignsubmission_lid'),
         get_string('costper1moutputtokens_help', 'assignsubmission_lid'),
         '0.30',
-        PARAM_FLOAT
+        PARAM_RAW
     ));
 
     // Cost per 1M Thought Tokens.
@@ -162,7 +160,7 @@ if ($ADMIN->fulltree) {
         get_string('costper1mthoughttokens', 'assignsubmission_lid'),
         get_string('costper1mthoughttokens_help', 'assignsubmission_lid'),
         '0.30',
-        PARAM_FLOAT
+        PARAM_RAW
     ));
 
     // Privacy & Documentation Links.
