@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Require the parent class.
-require_once($CFG->dirroot . '/mod/assign/submission/lib.php');
+require_once(dirname(__DIR__) . '/lib.php');
 
 /**
  * Assignment submission plugin class for LID.
