@@ -25,7 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Load assignment library which contains the parent class.
-// In Moodle 5.1+, submission plugin classes are in locallib.php
+// In Moodle 5.1+, submission plugin classes are in locallib.php under /mod/assign/.
+// Note: /mod/assign/submission/ contains only directories (no lib.php) in Moodle 5.1.
 global $CFG;
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
@@ -187,7 +188,7 @@ class assign_submission_lid extends assign_submission_plugin {
 
     /**
      * The assignment submission LID plugin has no submission component,
-     * so this method always returns false.
+     * so this method always returns true (empty).
      *
      * @param stdClass $submission
      * @return bool
@@ -230,7 +231,6 @@ class assign_submission_lid extends assign_submission_plugin {
      *
      * This shows LID analysis status for each student in the grading table.
      *
-     * @param stdClass $grade The grade record
      * @param stdClass $submission The submission record
      * @return string HTML for the column
      */
@@ -286,14 +286,5 @@ class assign_submission_lid extends assign_submission_plugin {
         }
 
         return $OUTPUT->render_from_template('assignsubmission_lid/grading_table_cell', $data);
-    }
-
-    /**
-     * Get the name of the grading table column.
-     *
-     * @return string
-     */
-    public function get_editor_text() {
-        return get_string('lid', 'assignsubmission_lid');
     }
 }
