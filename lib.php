@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Load assignment library which contains the parent class.
-// In Moodle 5.1+, submission plugin classes are in locallib.php under /mod/assign/.
-// Note: /mod/assign/submission/ contains only directories (no lib.php) in Moodle 5.1.
+// In Moodle 5.1+, /mod/assign/submission/ contains only directories (no lib.php).
+// The parent class assign_submission_plugin is defined in /mod/assign/locallib.php.
 global $CFG;
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
@@ -51,69 +51,57 @@ class assign_submission_lid extends assign_submission_plugin {
     /**
      * Get the settings for LID submission plugin.
      *
+     * These settings appear in the assignment form when the LID plugin
+     * checkbox is enabled under Submission types.
+     *
      * @param MoodleQuickForm $mform The form to add elements to.
      * @return void
      */
     public function get_settings(MoodleQuickForm $mform) {
-        global $CFG, $COURSE;
 
-        // Enable LID analysis checkbox.
+        // Enable LID analysis for this assignment.
+        // Note: Moodle also generates a top-level checkbox for the plugin in
+        // Submission types automatically. This field controls the LID-specific
+        // "enabled" config so our is_enabled() check works correctly.
         $mform->addElement(
             'selectyesno',
             'assignsubmission_lid_enabled',
             get_string('enabled', 'assignsubmission_lid')
         );
-        $mform->addHelpButton(
-            'assignsubmission_lid_enabled',
-            'enabled',
-            'assignsubmission_lid'
-        );
+        $mform->addHelpButton('assignsubmission_lid_enabled', 'enabled', 'assignsubmission_lid');
         $mform->setDefault('assignsubmission_lid_enabled', 0);
-        $mform->disabledIf('assignsubmission_lid_enabled', 'assignsubmission_onlinetext_enabled', 'eq', 0);
-        $mform->disabledIf('assignsubmission_lid_enabled', 'assignsubmission_file_enabled', 'eq', 0);
+        // NOTE: No disabledIf referencing other plugins' elements — cross-plugin
+        // disabledIf chains can suppress unrelated form sections (e.g. Feedback types).
 
-        // Include competency analysis checkbox.
+        // Include competency analysis.
         $mform->addElement(
             'selectyesno',
             'assignsubmission_lid_competencies',
             get_string('includecompetencies', 'assignsubmission_lid')
         );
-        $mform->addHelpButton(
-            'assignsubmission_lid_competencies',
-            'includecompetencies',
-            'assignsubmission_lid'
-        );
+        $mform->addHelpButton('assignsubmission_lid_competencies', 'includecompetencies', 'assignsubmission_lid');
         $mform->setDefault('assignsubmission_lid_competencies', 1);
         $mform->disabledIf('assignsubmission_lid_competencies', 'assignsubmission_lid_enabled', 'eq', 0);
 
-        // Generate rubric score suggestions checkbox.
+        // Generate rubric score suggestions.
         $mform->addElement(
             'selectyesno',
             'assignsubmission_lid_rubricscores',
             get_string('generaterubricscores', 'assignsubmission_lid')
         );
-        $mform->addHelpButton(
-            'assignsubmission_lid_rubricscores',
-            'generaterubricscores',
-            'assignsubmission_lid'
-        );
+        $mform->addHelpButton('assignsubmission_lid_rubricscores', 'generaterubricscores', 'assignsubmission_lid');
         $mform->setDefault('assignsubmission_lid_rubricscores', 1);
         $mform->disabledIf('assignsubmission_lid_rubricscores', 'assignsubmission_lid_enabled', 'eq', 0);
 
-        // Auto-analyze on submission (disabled in v0.1.0).
+        // Auto-analyze on submission — frozen in v0.1.0, coming in v0.2.0.
         $mform->addElement(
             'selectyesno',
             'assignsubmission_lid_autoanalyze',
             get_string('autoanalyze', 'assignsubmission_lid')
         );
-        $mform->addHelpButton(
-            'assignsubmission_lid_autoanalyze',
-            'autoanalyze',
-            'assignsubmission_lid'
-        );
+        $mform->addHelpButton('assignsubmission_lid_autoanalyze', 'autoanalyze', 'assignsubmission_lid');
         $mform->setDefault('assignsubmission_lid_autoanalyze', 0);
         $mform->disabledIf('assignsubmission_lid_autoanalyze', 'assignsubmission_lid_enabled', 'eq', 0);
-        // Freeze this setting for v0.1.0 (coming in v0.2.0).
         $mform->freeze('assignsubmission_lid_autoanalyze');
     }
 
@@ -128,14 +116,11 @@ class assign_submission_lid extends assign_submission_plugin {
         $this->set_config('competencies', !empty($data->assignsubmission_lid_competencies));
         $this->set_config('rubricscores', !empty($data->assignsubmission_lid_rubricscores));
         $this->set_config('autoanalyze', !empty($data->assignsubmission_lid_autoanalyze));
-
         return true;
     }
 
     /**
-     * Display the LID analysis in the submission summary.
-     *
-     * This is shown in the single student grading view.
+     * Display the LID analysis summary in the single student grading view.
      *
      * @param stdClass $submission
      * @param bool $showviewlink Set to true to show a link to view the full analysis.
@@ -144,41 +129,36 @@ class assign_submission_lid extends assign_submission_plugin {
     public function view_summary(stdClass $submission, &$showviewlink) {
         global $DB, $OUTPUT;
 
-        // Check if LID is enabled for this assignment.
         if (!$this->get_config('enabled')) {
             return '';
         }
 
-        // Get the analysis for this submission.
         $analysis = $DB->get_record('assignsubmission_lid_analysis', [
-            'submissionid' => $submission->id,
+            'submissionid'       => $submission->id,
             'submission_version' => $submission->attemptnumber,
         ]);
 
         if (!$analysis) {
-            // No analysis yet - show analyze button.
             return $OUTPUT->render_from_template('assignsubmission_lid/no_analysis', [
                 'submissionid' => $submission->id,
-                'cananalyze' => has_capability('assignsubmission/lid:analyze', $this->assignment->get_context()),
+                'cananalyze'   => has_capability('assignsubmission/lid:analyze', $this->assignment->get_context()),
             ]);
         }
 
-        // Parse the analysis JSON.
         $data = json_decode($analysis->analysis_json);
 
-        // Prepare data for template.
         $templatedata = [
-            'hasanalysis' => true,
-            'overallquality' => $data->submission_analysis->overall_quality_score ?? 0,
-            'cognitivedepth' => $data->submission_analysis->cognitive_depth_score ?? 0,
-            'coherence' => $data->submission_analysis->coherence_score ?? 0,
-            'evidencequality' => $data->submission_analysis->evidence_quality_score ?? 0,
-            'keystrengths' => $data->formative_feedback->key_strengths ?? [],
+            'hasanalysis'           => true,
+            'overallquality'        => $data->submission_analysis->overall_quality_score ?? 0,
+            'cognitivedepth'        => $data->submission_analysis->cognitive_depth_score ?? 0,
+            'coherence'             => $data->submission_analysis->coherence_score ?? 0,
+            'evidencequality'       => $data->submission_analysis->evidence_quality_score ?? 0,
+            'keystrengths'          => $data->formative_feedback->key_strengths ?? [],
             'developmentpriorities' => $data->formative_feedback->development_priorities ?? [],
-            'topcompetencies' => array_slice($data->competency_demonstration ?? [], 0, 3),
-            'analyzedat' => userdate($analysis->analyzed_at),
-            'canreanalyze' => has_capability('assignsubmission/lid:analyze', $this->assignment->get_context()),
-            'submissionid' => $submission->id,
+            'topcompetencies'       => array_slice($data->competency_demonstration ?? [], 0, 3),
+            'analyzedat'            => userdate($analysis->analyzed_at),
+            'canreanalyze'          => has_capability('assignsubmission/lid:analyze', $this->assignment->get_context()),
+            'submissionid'          => $submission->id,
         ];
 
         $showviewlink = true;
@@ -187,19 +167,18 @@ class assign_submission_lid extends assign_submission_plugin {
     }
 
     /**
-     * The assignment submission LID plugin has no submission component,
-     * so this method always returns true (empty).
+     * The LID plugin does not add to the submission itself.
+     * Always return true so Moodle does not treat it as a required submission component.
      *
      * @param stdClass $submission
      * @return bool
      */
     public function is_empty(stdClass $submission) {
-        // LID doesn't add to the submission itself, so always return true.
         return true;
     }
 
     /**
-     * Determine if the plugin is enabled.
+     * Determine if the plugin is enabled for this assignment.
      *
      * @return bool
      */
@@ -210,67 +189,56 @@ class assign_submission_lid extends assign_submission_plugin {
     /**
      * Load custom CSS files based on configuration.
      *
-     * This is called automatically by Moodle's page rendering system.
-     *
      * @param moodle_page $page The page we are going to add requirements to.
      */
     public function add_to_page(moodle_page $page) {
-        global $CFG;
-
-        // Always load base styles.
         $page->requires->css('/mod/assign/submission/lid/styles.css');
 
-        // Conditionally load LID branding styles if enabled.
         if (get_config('assignsubmission_lid', 'futuristicui')) {
             $page->requires->css('/mod/assign/submission/lid/styles-lid-brand.css');
         }
     }
 
     /**
-     * Add a custom column to the grading table.
+     * Render the LID status cell for the grading table.
      *
-     * This shows LID analysis status for each student in the grading table.
-     *
-     * @param stdClass $submission The submission record
-     * @return string HTML for the column
+     * @param stdClass $submission The submission record.
+     * @return string HTML for the grading table cell.
      */
     public function format_for_table($submission) {
         global $DB, $OUTPUT;
 
-        // Check if LID is enabled for this assignment.
         if (!$this->get_config('enabled')) {
             return '';
         }
 
-        // Get the analysis for this submission.
         $analysis = $DB->get_record('assignsubmission_lid_analysis', [
-            'assignmentid' => $this->assignment->get_instance()->id,
-            'userid' => $submission->userid,
+            'assignmentid'       => $this->assignment->get_instance()->id,
+            'userid'             => $submission->userid,
             'submission_version' => $submission->attemptnumber ?? 0,
         ]);
 
-        // Check if in queue.
         $queued = $DB->record_exists('assignsubmission_lid_queue', [
             'assignmentid' => $this->assignment->get_instance()->id,
-            'userid' => $submission->userid,
-            'status' => 'pending',
+            'userid'       => $submission->userid,
+            'status'       => 'pending',
         ]);
 
         $processing = $DB->record_exists('assignsubmission_lid_queue', [
             'assignmentid' => $this->assignment->get_instance()->id,
-            'userid' => $submission->userid,
-            'status' => 'processing',
+            'userid'       => $submission->userid,
+            'status'       => 'processing',
         ]);
 
         $cananalyze = has_capability('assignsubmission/lid:analyze', $this->assignment->get_context());
 
         $data = [
-            'analyzed' => (bool)$analysis,
-            'pending' => $queued,
-            'processing' => $processing,
-            'notqueued' => !$analysis && !$queued && !$processing,
-            'cananalyze' => $cananalyze,
-            'userid' => $submission->userid,
+            'analyzed'     => (bool)$analysis,
+            'pending'      => $queued,
+            'processing'   => $processing,
+            'notqueued'    => !$analysis && !$queued && !$processing,
+            'cananalyze'   => $cananalyze,
+            'userid'       => $submission->userid,
             'assignmentid' => $this->assignment->get_instance()->id,
         ];
 
@@ -279,10 +247,10 @@ class assign_submission_lid extends assign_submission_plugin {
             if (has_capability('assignsubmission/lid:viewcosts', $this->assignment->get_context())) {
                 $data['cost'] = '$' . number_format($analysis->api_cost_usd, 4);
             }
-            $data['viewurl'] = new \moodle_url('/mod/assign/submission/lid/view.php', [
+            $data['viewurl'] = (new \moodle_url('/mod/assign/submission/lid/view.php', [
                 'assignid' => $this->assignment->get_instance()->id,
-                'userid' => $submission->userid,
-            ]);
+                'userid'   => $submission->userid,
+            ]))->out(false);
         }
 
         return $OUTPUT->render_from_template('assignsubmission_lid/grading_table_cell', $data);
