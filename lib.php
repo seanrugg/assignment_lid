@@ -207,16 +207,6 @@ class assign_submission_lid extends assign_submission_plugin {
     }
 
     /**
-     * Determine if the plugin is visible to students.
-     *
-     * @return bool
-     */
-    public function is_visible() {
-        // LID is instructor-facing only in v0.1.0.
-        return false;
-    }
-
-    /**
      * Load custom CSS files based on configuration.
      *
      * This is called automatically by Moodle's page rendering system.
