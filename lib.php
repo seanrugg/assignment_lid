@@ -24,8 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Require the parent class.
-require_once(dirname(__DIR__) . '/lib.php');
+// Load assignment library which contains the parent class.
+// In Moodle 5.1+, submission plugin classes are in locallib.php
+global $CFG;
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
 /**
  * Assignment submission plugin class for LID.
